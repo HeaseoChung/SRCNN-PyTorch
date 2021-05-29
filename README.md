@@ -4,7 +4,7 @@
 <br>
 
 ## SRCNN_Architecture
-<center><img src="./examples/SRCNN_architecture.PNG"></center>
+<center><img src="examples/SRCNN_architecture.png"></center>
 
 
 ## Results
@@ -12,7 +12,7 @@
 <table>
     <tr>
         <td><center>Bicubic</center></td>
-        <td><center>LDSR</center></td>
+        <td><center>SRCNN</center></td>
     </tr>
     <tr>
     	<td>
