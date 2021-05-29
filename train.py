@@ -61,9 +61,9 @@ if __name__ == '__main__':
     """ Torch Seed 설정 """
     torch.manual_seed(args.seed)
 
-    model = SRCNN(scale_factor=args.scale, main_blocks=args.main_blocks, sub_blocks=args.sub_blocks, num_feats=args.num_feats).to(device)
+    model = SRCNN(scale_factor=args.scale, num_channels=args.num_channels).to(device)
     """ Loss 및 Optimizer 설정 """
-    pixel_criterion = nn.L1Loss().to(device)
+    pixel_criterion = nn.MSELoss().to(device)
     psnr_optimizer = torch.optim.Adam(model.parameters(), args.psnr_lr, (0.9, 0.999))
     psnr_epoch_indices = math.floor(args.num_epochs // 4)
     psnr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(psnr_optimizer, psnr_epoch_indices, 1, 1e-7)
