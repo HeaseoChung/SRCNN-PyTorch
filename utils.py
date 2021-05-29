@@ -2,21 +2,6 @@ import torch
 import numpy as np
 
 
-# 패치 사이즈를 계산하는 decorator 함수
-def calc_patch_size(func):
-    def wrapper(args):
-        # 스케일 값에 따라서 패치 사이즈르 args의 저장 후 반환
-        if args.scale == 2:
-            args.patch_size = 10
-        elif args.scale == 3:
-            args.patch_size = 7
-        elif args.scale == 4:
-            args.patch_size = 6
-        else:
-            raise Exception('Scale Error', args.scale)
-        return func(args)
-    return wrapper
-
 # 전처리 과정 함수
 def preprocess(img):
     # uInt8 -> float32로 변환
