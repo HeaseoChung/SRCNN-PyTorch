@@ -85,7 +85,7 @@ if __name__ == '__main__':
     """ 로그 인포 프린트 하기 """
     logger.info(
                 f"SRCNN MODEL INFO:\n"
-                f"\tNumber of channles:                   {args.num_channels}\n"
+                f"\tNumber of channles:            {args.num_channels}\n"
                 f"\tScale:                         {args.scale}\n"
 
                 f"SRCNN TRAINING INFO:\n"
