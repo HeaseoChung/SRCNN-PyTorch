@@ -4,7 +4,6 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 
-
 class Dataset(object):
     def __init__(self, images_dir, image_size, upscale_factor):
         self.filenames = [os.path.join(images_dir, x) for x in os.listdir(images_dir) if check_image_file(x)]
