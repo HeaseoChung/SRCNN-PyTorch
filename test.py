@@ -17,14 +17,16 @@ if __name__ == '__main__':
     cudnn.benchmark = True
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    model = SRCNN(scale_factor=args.scale).to(device)
-
-    state_dict = model.state_dict()
-    for n, p in torch.load(args.weights_file, map_location=lambda storage, loc: storage)['model_state_dict'].items():
-        if n in state_dict.keys():
-            state_dict[n].copy_(p)
-        else:
-            raise KeyError(n)
+    model = SRCNN().to(device)
+    try:
+        model.load_state_dict(torch.load(args.weights_file, map_location=device))
+    except:
+        state_dict = model.state_dict()
+        for n, p in torch.load(args.weights_file, map_location=lambda storage, loc: storage)['model_state_dict'].items():
+            if n in state_dict.keys():
+                state_dict[n].copy_(p)
+            else:
+                raise KeyError(n)
 
     model.eval()
 
@@ -35,7 +37,7 @@ if __name__ == '__main__':
 
     hr = image.resize((image_width, image_height), resample=pil_image.BICUBIC)
     lr = hr.resize((hr.width // args.scale, hr.height // args.scale), resample=pil_image.BICUBIC)
-    bicubic = lr.resize((lr.width * args.scale, lr.height * args.scale), resample=pil_image.BICUBIC)
+    bicubic = lr = lr.resize((lr.width * args.scale, lr.height * args.scale), resample=pil_image.BICUBIC)
     bicubic.save(args.image_file.replace('.', '_bicubic_x{}.'.format(args.scale)))
 
     lr = preprocess(lr).to(device)

@@ -3,7 +3,7 @@ from torch.cuda import amp
 
 
 class SRCNN(nn.Module):
-    def __init__(self, num_channels, scale_factor):
+    def __init__(self, num_channels=3):
         super(SRCNN, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(num_channels, 64, kernel_size=9, padding=9//2),

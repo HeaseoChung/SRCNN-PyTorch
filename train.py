@@ -124,7 +124,7 @@ if __name__ == '__main__':
         losses = AverageMeter(name="PSNR Loss", fmt=":.6f")
         psnr = AverageMeter(name="PSNR", fmt=":.6f")
         progress = ProgressMeter(
-            num_batches=len(eval_dataloader)-1,
+            num_batches=len(train_dataloader),
             meters=[losses, psnr],
             prefix=f"Epoch: [{epoch}]"
         )
@@ -145,6 +145,10 @@ if __name__ == '__main__':
             scaler.update()
 
             losses.update(loss.item(), len(lr))
+            psnr.update(calc_psnr(preds, hr), len(lr))
+
+            if i%100==0:
+                progress.display(i)
 
         psnr_scheduler.step()
 
@@ -155,10 +159,7 @@ if __name__ == '__main__':
                 lr = lr.to(device)
                 hr = hr.to(device)
                 preds = model(lr)
-                psnr.update(calc_psnr(preds, hr), len(lr))
-
-                if i == len(eval_dataset)//args.batch_size:
-                    progress.display(i)
+                
 
         if psnr.avg > best_psnr:
             best_psnr = psnr.avg
