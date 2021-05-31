@@ -42,7 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--num-channels', type=int, default=3)
     parser.add_argument('--psnr-lr', type=float, default=1e-3)
     parser.add_argument('--batch-size', type=int, default=48)
-    parser.add_argument('--num-epochs', type=int, default=20000)
+    parser.add_argument('--num-epochs', type=int, default=100)
     parser.add_argument('--num-workers', type=int, default=8)
     parser.add_argument('--patch-size', type=int, default=120)
     parser.add_argument('--seed', type=int, default=123)
