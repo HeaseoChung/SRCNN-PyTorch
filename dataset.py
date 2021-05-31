@@ -1,10 +1,9 @@
 import os
+from utils import check_image_file
 from PIL import Image
 import torchvision.transforms as transforms
 
 
-def check_image_file(filename: str):
-    return any(filename.endswith(extension) for extension in [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".BMP"])
 
 class Dataset(object):
     def __init__(self, images_dir, image_size, upscale_factor):

@@ -2,6 +2,9 @@ import torch
 import numpy as np
 
 
+def check_image_file(filename: str):
+    return any(filename.endswith(extension) for extension in [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".BMP"])
+
 # 전처리 과정 함수
 def preprocess(img):
     # uInt8 -> float32로 변환
