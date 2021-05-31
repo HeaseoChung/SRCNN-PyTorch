@@ -65,9 +65,6 @@ if __name__ == '__main__':
     """ Loss 및 Optimizer 설정 """
     pixel_criterion = nn.MSELoss().to(device)
     psnr_optimizer = torch.optim.Adam(model.parameters(), args.psnr_lr, (0.9, 0.999))
-    psnr_epoch_indices = math.floor(args.num_epochs // 4)
-    psnr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(psnr_optimizer, psnr_epoch_indices, 1, 1e-7)
-    scaler = amp.GradScaler()
 
     total_epoch = args.num_epochs
     start_epoch = 0
@@ -98,6 +95,10 @@ if __name__ == '__main__':
                 f"\tPatch size:                    {args.patch_size}\n"
                 f"\tBatch size:                    {args.batch_size}\n"
                 )
+
+    """ 스케줄러 설정 """
+    psnr_scheduler = torch.optim.lr_scheduler.StepLR(psnr_optimizer, step_size=30, gamma=0.1)
+    scaler = amp.GradScaler()
 
     """ 데이터셋 & 데이터셋 설정 """
     train_dataset = Dataset(args.train_file, args.patch_size, args.scale)
