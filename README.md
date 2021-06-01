@@ -10,7 +10,7 @@ SRCNN은 Deep convolutional neural network (CNN)으로 구성되어 있으며, �
 
 SRCNN은 가벼운 구조를 가지고 있었지만 논문발표 당시 품질과 성능은 최고였다.
 
-[더 보기](https://velog.io/write?id=9153c655-9fe5-4f8b-ae72-c5b042ed3090)
+[더 보기](https://velog.io/@heaseo/내멋대로해석하는Image-Super-Resolution-Using-Deep-Convolutional-Networks-A.K.A-SRCNN)
 
 <br>
 
