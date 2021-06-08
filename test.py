@@ -18,7 +18,7 @@ if __name__ == '__main__':
     cudnn.benchmark = True
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    model = SRCNN().to(device)
+    model = SRCNN(args.num_channels).to(device)
     try:
         model.load_state_dict(torch.load(args.weights_file, map_location=device))
     except:
