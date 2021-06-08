@@ -38,7 +38,6 @@ if __name__ == '__main__':
     parser.add_argument('--train-file', type=str, required=True)
     parser.add_argument('--eval-file', type=str, required=True)
     parser.add_argument('--outputs-dir', type=str, required=True)
-    parser.add_argument('--scale', type=int, default=3)
     parser.add_argument('--num-channels', type=int, default=3)
     parser.add_argument('--psnr-lr', type=float, default=1e-3)
     parser.add_argument('--batch-size', type=int, default=48)
@@ -50,7 +49,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     """ weight를 저장 할 경로 설정 """ 
-    args.outputs_dir = os.path.join(args.outputs_dir,  f"SRCNN_x{args.scale}")
+    args.outputs_dir = os.path.join(args.outputs_dir,  f"SRCNN")
     if not os.path.exists(args.outputs_dir):
         os.makedirs(args.outputs_dir)
 
@@ -61,7 +60,7 @@ if __name__ == '__main__':
     """ Torch Seed 설정 """
     torch.manual_seed(args.seed)
 
-    model = SRCNN(scale_factor=args.scale, num_channels=args.num_channels).to(device)
+    model = SRCNN(num_channels=args.num_channels).to(device)
     """ Loss 및 Optimizer 설정 """
     pixel_criterion = nn.MSELoss().to(device)
     psnr_optimizer = torch.optim.Adam(model.parameters(), args.psnr_lr, (0.9, 0.999))
@@ -83,7 +82,6 @@ if __name__ == '__main__':
     logger.info(
                 f"SRCNN MODEL INFO:\n"
                 f"\tNumber of channels:            {args.num_channels}\n"
-                f"\tScale:                         {args.scale}\n"
 
                 f"SRCNN TRAINING INFO:\n"
                 f"\tTotal Epoch:                   {args.num_epochs}\n"
@@ -101,7 +99,7 @@ if __name__ == '__main__':
     scaler = amp.GradScaler()
 
     """ 데이터셋 & 데이터셋 설정 """
-    train_dataset = Dataset(args.train_file, args.patch_size, args.scale)
+    train_dataset = Dataset(args.train_file, args.patch_size)
     train_dataloader = DataLoader(
                             dataset=train_dataset,
                             batch_size=args.batch_size,
@@ -109,7 +107,7 @@ if __name__ == '__main__':
                             num_workers=args.num_workers,
                             pin_memory=True
                         )
-    eval_dataset = Dataset(args.eval_file, args.patch_size, args.scale)
+    eval_dataset = Dataset(args.eval_file, args.patch_size)
     eval_dataloader = DataLoader(
                                 dataset=eval_dataset, 
                                 batch_size=args.batch_size,

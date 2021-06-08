@@ -11,6 +11,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights-file', type=str, required=True)
     parser.add_argument('--image-file', type=str, required=True)
+    parser.add_argument('--num-channels', type=int, default=3)
     parser.add_argument('--scale', type=int, default=3)
     args = parser.parse_args()
 
