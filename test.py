@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     hr = image.resize((image_width, image_height), resample=pil_image.BICUBIC)
     lr = hr.resize((hr.width // args.scale, hr.height // args.scale), resample=pil_image.BICUBIC)
-    bicubic = lr = lr.resize((lr.width * args.scale, lr.height * args.scale), resample=pil_image.BICUBIC)
+    bicubic = lr.resize((lr.width * args.scale, lr.height * args.scale), resample=pil_image.BICUBIC)
     bicubic.save(args.image_file.replace('.', '_bicubic_x{}.'.format(args.scale)))
 
     lr = preprocess(lr).to(device)
