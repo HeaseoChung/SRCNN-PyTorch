@@ -5,10 +5,11 @@ import torchvision.transforms as transforms
 
 
 class Dataset(object):
-    def __init__(self, images_dir, image_size):
+    def __init__(self, images_dir, image_size, scale):
         self.filenames = [os.path.join(images_dir, x) for x in os.listdir(images_dir) if check_image_file(x)]
         self.lr_transforms = transforms.Compose([
             transforms.ToPILImage(),
+            transforms.Resize((image_size//scale, image_size//scale)),
             transforms.ToTensor()
         ])
         self.hr_transforms = transforms.Compose([
