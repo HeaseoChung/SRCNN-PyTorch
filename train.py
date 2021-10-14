@@ -14,20 +14,8 @@ from torch.cuda import amp
 from models import SRCNN
 from utils import AverageMeter, ProgressMeter, calc_psnr
 from dataset import Dataset
-from tqdm import tqdm
-from PIL import Image
-from utils import preprocess
 
-# 나비 테스트 이미지 경로 설정
-test_image_path = 'examples/butterfly.png'
-# 나비 테스트 이미지 불러오기
-test_image = Image.open(test_image_path).convert('RGB')
-# 나비 테스트 이미지 전처리
-test_image = preprocess(test_image)
-
-
-# python train.py --train-file data/train --eval-file data/eval --outputs-dir models --scale 3
-# python train.py --train-file data/train --eval-file data/eval --outputs-dir models --scale 3 --checkpoint-file 
+# python train.py --train-file data/train --eval-file data/eval --outputs-dir models --scale 2
 if __name__ == '__main__':
     """ 로그 설정 """
     logger = logging.getLogger(__name__)
@@ -39,17 +27,18 @@ if __name__ == '__main__':
     parser.add_argument('--eval-file', type=str, required=True)
     parser.add_argument('--outputs-dir', type=str, required=True)
     parser.add_argument('--num-channels', type=int, default=3)
+    parser.add_argument('--scale', type=int, default=2)
     parser.add_argument('--psnr-lr', type=float, default=1e-3)
-    parser.add_argument('--batch-size', type=int, default=48)
+    parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--num-epochs', type=int, default=100)
     parser.add_argument('--num-workers', type=int, default=8)
-    parser.add_argument('--patch-size', type=int, default=120)
+    parser.add_argument('--patch-size', type=int, default=160)
     parser.add_argument('--seed', type=int, default=123)
     parser.add_argument('--checkpoint-file', type=str, default='checkpoint-file.pth')
     args = parser.parse_args()
     
     """ weight를 저장 할 경로 설정 """ 
-    args.outputs_dir = os.path.join(args.outputs_dir,  f"SRCNN")
+    args.outputs_dir = os.path.join(args.outputs_dir,  f"SRCNNx{args.scale}")
     if not os.path.exists(args.outputs_dir):
         os.makedirs(args.outputs_dir)
 
@@ -60,7 +49,7 @@ if __name__ == '__main__':
     """ Torch Seed 설정 """
     torch.manual_seed(args.seed)
 
-    model = SRCNN(num_channels=args.num_channels).to(device)
+    model = SRCNN(num_channels=args.num_channels, scale=args.scale).to(device)
     """ Loss 및 Optimizer 설정 """
     pixel_criterion = nn.MSELoss().to(device)
     psnr_optimizer = torch.optim.Adam(model.parameters(), args.psnr_lr, (0.9, 0.999))
@@ -99,7 +88,7 @@ if __name__ == '__main__':
     scaler = amp.GradScaler()
 
     """ 데이터셋 & 데이터셋 설정 """
-    train_dataset = Dataset(args.train_file, args.patch_size)
+    train_dataset = Dataset(args.train_file, args.patch_size, scale=args.scale)
     train_dataloader = DataLoader(
                             dataset=train_dataset,
                             batch_size=args.batch_size,
@@ -107,7 +96,7 @@ if __name__ == '__main__':
                             num_workers=args.num_workers,
                             pin_memory=True
                         )
-    eval_dataset = Dataset(args.eval_file, args.patch_size)
+    eval_dataset = Dataset(args.eval_file, args.patch_size, scale=args.scale)
     eval_dataloader = DataLoader(
                                 dataset=eval_dataset, 
                                 batch_size=args.batch_size,
@@ -137,7 +126,7 @@ if __name__ == '__main__':
             with amp.autocast():
                 preds = model(lr)
                 loss = pixel_criterion(preds, hr)
-
+            
             scaler.scale(loss).backward()
             scaler.step(psnr_optimizer)
             scaler.update()
@@ -152,12 +141,22 @@ if __name__ == '__main__':
 
         """  테스트 Epoch 시작 """
         model.eval()
-        with torch.no_grad():
-            for i, (lr, hr) in enumerate(eval_dataloader):
-                lr = lr.to(device)
-                hr = hr.to(device)
+        
+        for i, (lr, hr) in enumerate(eval_dataloader):
+            lr = lr.to(device)
+            hr = hr.to(device)
+            with torch.no_grad():
                 preds = model(lr)
-                
+            if i == 0:
+                vutils.save_image(
+                    lr.detach(), os.path.join(args.outputs_dir, f"LR_{epoch}.jpg")
+                )
+                vutils.save_image(
+                    hr.detach(), os.path.join(args.outputs_dir, f"HR_{epoch}.jpg")
+                )
+                vutils.save_image(
+                    preds.detach(), os.path.join(args.outputs_dir, f"preds_{epoch}.jpg")
+                )
 
         if psnr.avg > best_psnr:
             best_psnr = psnr.avg
@@ -174,9 +173,3 @@ if __name__ == '__main__':
                 'best_psnr': best_psnr,
             }, os.path.join(args.outputs_dir, 'epoch_{}.pth'.format(epoch))
         )
-
-        """ 나비 이미지 테스트 """
-        with torch.no_grad():
-            lr = test_image.to(device)
-            preds = model(lr)
-            vutils.save_image(preds.detach(), os.path.join(args.outputs_dir, f"PSNR_{epoch}.png"))
