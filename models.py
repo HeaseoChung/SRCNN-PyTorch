@@ -1,10 +1,12 @@
 import torch.nn as nn
+from torch.nn import functional as F
 from torch.cuda import amp
 
 
 class SRCNN(nn.Module):
-    def __init__(self, num_channels=3):
+    def __init__(self, num_channels=3, scale=2):
         super(SRCNN, self).__init__()
+        self.scale = scale
         self.conv1 = nn.Sequential(
             nn.Conv2d(num_channels, 64, kernel_size=9, padding=9//2),
             nn.ReLU(inplace=True)
@@ -17,6 +19,7 @@ class SRCNN(nn.Module):
     
     @amp.autocast()
     def forward(self, x):
+        x = F.interpolate(x, scale_factor=self.scale, mode="bicubic")
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
